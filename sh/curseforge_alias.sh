@@ -1,0 +1,1 @@
+alias cf='python3 /home/kalka/git/scripts/curseforge.py'
