@@ -24,11 +24,18 @@ def main():
         sys.exit(1)
     if 'get' in args:
         try:
-            url = args[1]
+            loader = args[1]
         except IndexError:
-            url = []
+            loader = 'forge'
         try:
-            version = args[2]
+            url = args[2]
+        except IndexError:
+            try:
+                url = args[1]
+            except IndexError:
+                url = []
+        try:
+            version = args[3]
         except IndexError:
             version = "1.17.1"
         if 'curseforge' not in url:
@@ -45,16 +52,16 @@ def main():
             data = request.json()
             mod = ''
             for d in data:
-                if mod_slug in d['slug']:
+                if mod_slug == d['slug']:
                     mod = d['id']
-                    break
             mod == '' and sys.exit(log.error("No mod found"))
             curse_r = requests.get(f'{curseforge_url}{mod}', headers={
                                    'User-Agent': 'cfcli / kalka.io'})
             if curse_r.status_code == 200:
                 curse_data = curse_r.json()
+                print(mod)
                 dates = [f['fileDate'] for f in curse_data['latestFiles']
-                         if version in f['gameVersion']]
+                         if (loader in f['gameVersion'] or version in f['gameVersion'])]
                 not dates and sys.exit(
                     log.error(f"Version {version} not found for {mod_slug}"))
                 latest = max(dates)
@@ -87,7 +94,8 @@ def main():
                 b.close()
 
 
-try:
-    main()
-except KeyboardInterrupt:
-    pass
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
