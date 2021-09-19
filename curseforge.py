@@ -33,7 +33,7 @@ args = parse_args(parser)
 
 def assemble_log():
     logging.basicConfig(handlers=[RichHandler()], level=logging.INFO)
-    rich = logging.getLogger("cf")
+    rich = logging.getLogger("curseutility")
     return rich
 
 
@@ -79,7 +79,6 @@ def download_mod(log, mod_slug, download_url):
     import time
     start = time.time()
     save_path = f'{args.download_path}/{os.path.basename(download_url)}'
-    log.info(save_path)
     with Progress() as progress:
         task = progress.add_task(
             description=f"> Downloading {mod_slug}... {int(stream_length)} total bytes", total=int(stream_length))
@@ -105,7 +104,7 @@ def main():
     if os.path.exists('/tmp/curseforge.json'):
         curseforge_date = datetime.datetime.strptime(request.headers.get("last-modified"), "%a, %d %b %Y %H:%M:%S %Z")
         import pytz
-        if curseforge_date.astimezone(pytz.utc) < datetime.datetime.now(tz=datetime.timezone.utc):
+        if curseforge_date.astimezone(pytz.utc) > datetime.datetime.now(tz=datetime.timezone.utc):
             log.info(datetime.datetime.now(tz=datetime.timezone.utc))
             log.info("Need an update.")
             if request.status_code == 200:
@@ -144,7 +143,6 @@ def main():
         curse_r = curse_request(m, found_file.get("projectFileId"))
         if curse_r.status_code == 200:
             curse_data = curse_r.json()
-            log.info(curse_data)
             if not args.disable_dependencies:
                 deps = []
                 for dep in curse_data.get("dependencies"):
