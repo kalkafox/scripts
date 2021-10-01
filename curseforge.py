@@ -51,6 +51,9 @@ def curse_request(m, modid):
 TYPE_FORGE = 1
 TYPE_FABRIC = 4
 
+TYPE_REQUIRED = 3
+TYPE_OPTIONAL = 2
+
 def get_mod_file(log, m):
     for f in m.get("latest_files"):
         if f.get('modLoader') == None and args.modloader.lower() == 'fabric':
@@ -146,7 +149,7 @@ def main():
             if not args.disable_dependencies:
                 deps = []
                 for dep in curse_data.get("dependencies"):
-                    deps += [d for d in data if dep.get("addonId") == d.get("id")]
+                    deps += [d for d in data if dep.get("addonId") == d.get("id") and dep.get("type") == TYPE_REQUIRED]
                 for d in deps:
                     dep_file = get_mod_file(log, d)
                     dep_r = curse_request(d, dep_file.get("projectFileId"))
